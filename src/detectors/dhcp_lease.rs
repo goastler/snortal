@@ -1,17 +1,25 @@
 use crate::types::{PortalUrl, Source};
 
-pub async fn detect() -> Vec<PortalUrl> {
-    detect_inner().await.unwrap_or_default()
+const DEFAULT_LEASE_FILES: &[&str] = &[
+    "/var/lib/dhcp/dhclient.leases",         // Debian/Ubuntu
+    "/var/lib/dhclient/dhclient.leases",     // RHEL/Fedora/CentOS
+    "/var/lib/dhclient/dhclient6.leases",
+    "/var/lib/NetworkManager/dhclient.conf", // NM managed
+];
+
+/// `files` overrides the built-in lease file list when non-empty.
+pub async fn detect(files: &[String]) -> Vec<PortalUrl> {
+    detect_inner(files).await.unwrap_or_default()
 }
 
-async fn detect_inner() -> Result<Vec<PortalUrl>, Box<dyn std::error::Error + Send + Sync>> {
-    // Try all common lease file paths across distros
-    let candidates = [
-        "/var/lib/dhcp/dhclient.leases",        // Debian/Ubuntu
-        "/var/lib/dhclient/dhclient.leases",    // RHEL/Fedora/CentOS
-        "/var/lib/dhclient/dhclient6.leases",
-        "/var/lib/NetworkManager/dhclient.conf", // NM managed
-    ];
+async fn detect_inner(
+    files: &[String],
+) -> Result<Vec<PortalUrl>, Box<dyn std::error::Error + Send + Sync>> {
+    let candidates: Vec<&str> = if files.is_empty() {
+        DEFAULT_LEASE_FILES.to_vec()
+    } else {
+        files.iter().map(String::as_str).collect()
+    };
 
     let mut results = Vec::new();
     for path in &candidates {

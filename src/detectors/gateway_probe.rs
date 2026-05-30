@@ -2,14 +2,19 @@ use crate::types::{PortalUrl, Source};
 use reqwest::redirect;
 use std::time::Duration;
 
-pub async fn detect(timeout_secs: u64) -> Vec<PortalUrl> {
-    detect_inner(timeout_secs).await.unwrap_or_default()
+/// `gateway_ip` overrides auto-detection from `/proc/net/route` when `Some`.
+pub async fn detect(timeout_secs: u64, gateway_ip: Option<&str>) -> Vec<PortalUrl> {
+    detect_inner(timeout_secs, gateway_ip).await.unwrap_or_default()
 }
 
 async fn detect_inner(
     timeout_secs: u64,
+    gateway_ip_override: Option<&str>,
 ) -> Result<Vec<PortalUrl>, Box<dyn std::error::Error + Send + Sync>> {
-    let gateway_ip = gateway_ip_from_proc().await?;
+    let gateway_ip = match gateway_ip_override {
+        Some(ip) => ip.to_owned(),
+        None => gateway_ip_from_proc().await?,
+    };
 
     let client = reqwest::Client::builder()
         .redirect(redirect::Policy::none())
