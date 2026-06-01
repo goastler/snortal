@@ -7,7 +7,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  BINARY_NAME: captive-portal-finder
+  BINARY_NAME: portalgun
 
 jobs:
   build:

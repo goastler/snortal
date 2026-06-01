@@ -1,5 +1,5 @@
 [package]
-name = "captive-portal-finder"
+name = "portalgun"
 version = "1.0.0"
 edition = "2021"
 description = "Detect captive portal URLs on a Linux network"
@@ -7,7 +7,7 @@ authors = ["George Oastler <goastler4@gmail.com>"]
 license = "MIT"
 
 [[bin]]
-name = "captive-portal-finder"
+name = "portalgun"
 path = "src/main.rs"
 
 [dependencies]

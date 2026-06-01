@@ -83,17 +83,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1e748733b7cbc798e1434b6ac524f0c1ff2ab456fe201501e6497c8417a4fc33"
 
 [[package]]
-name = "captive-portal-finder"
-version = "1.0.0"
-dependencies = [
- "clap",
- "futures",
- "reqwest",
- "tokio",
- "url",
-]
-
-[[package]]
 name = "cc"
 version = "1.2.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -645,6 +634,17 @@ name = "pin-project-lite"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd"
+
+[[package]]
+name = "portalgun"
+version = "1.0.0"
+dependencies = [
+ "clap",
+ "futures",
+ "reqwest",
+ "tokio",
+ "url",
+]
 
 [[package]]
 name = "potential_utf"

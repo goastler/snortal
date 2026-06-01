@@ -120,7 +120,7 @@ impl PackageManager {
 }
 
 pub fn run() {
-    println!("Checking dependencies for captive-portal-finder...\n");
+    println!("Checking dependencies for portalgun...\n");
 
     // Check which deps are missing
     let missing: Vec<&Dep> = DEPS.iter().filter(|d| !binary_in_path(d.binary)).collect();

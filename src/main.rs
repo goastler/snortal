@@ -5,7 +5,7 @@ mod types;
 
 #[derive(clap::Parser, Debug)]
 #[command(
-    name = "captive-portal-finder",
+    name = "portalgun",
     about = "Detect captive portal URLs on the current Linux network",
     version
 )]

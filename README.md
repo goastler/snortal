@@ -1,4 +1,4 @@
-# captive-portal-finder
+# portalgun
 
 Detects captive portal login page URLs on a Linux network.
 
@@ -8,16 +8,16 @@ When connecting to a WiFi network with a captive portal, the browser redirect of
 
 ```
 # Detect captive portal URLs on the current network
-captive-portal-finder
+portalgun
 
 # Show verbose output (includes SSID, detectors with no results)
-captive-portal-finder --verbose
+portalgun --verbose
 
 # Output as JSON
-captive-portal-finder --json
+portalgun --json
 
 # Install optional system dependencies ahead of time
-captive-portal-finder install-deps
+portalgun install-deps
 ```
 
 ## Overrides
@@ -29,7 +29,7 @@ The built-in defaults for each detector can be overridden via flags. When an ove
 Replace the 6 built-in connectivity-check URLs with your own:
 
 ```
-captive-portal-finder -e http://captive.apple.com/ -e http://connectivity-check.ubuntu.com./
+portalgun -e http://captive.apple.com/ -e http://connectivity-check.ubuntu.com./
 ```
 
 Built-in defaults:
@@ -45,7 +45,7 @@ Built-in defaults:
 Check specific lease files instead of the built-in paths:
 
 ```
-captive-portal-finder -d /var/lib/dhcp/dhclient.leases -d /custom/path/leases
+portalgun -d /var/lib/dhcp/dhclient.leases -d /custom/path/leases
 ```
 
 Built-in defaults (tried in order):
@@ -59,7 +59,7 @@ Built-in defaults (tried in order):
 Skip `/proc/net/route` auto-detection and probe a specific gateway directly:
 
 ```
-captive-portal-finder --gateway-ip 192.168.0.1
+portalgun --gateway-ip 192.168.0.1
 ```
 
 Useful when the default route lookup fails or you know the portal is hosted on a non-default-gateway IP.
@@ -90,7 +90,7 @@ The tool works without any additional packages. Two optional system binaries add
 To install them:
 
 ```
-captive-portal-finder install-deps
+portalgun install-deps
 ```
 
 This detects your package manager (`apt`, `dnf`, `pacman`, `zypper`, `apk`) and runs the appropriate install command with `sudo`. Missing binaries are skipped.
@@ -101,7 +101,7 @@ This detects your package manager (`apt`, `dnf`, `pacman`, `zypper`, `apk`) and 
 cargo build --release
 ```
 
-The binary is at `target/release/captive-portal-finder`. No runtime dependencies beyond libc — `reqwest` with `rustls-tls` is statically compiled in.
+The binary is at `target/release/portalgun`. No runtime dependencies beyond libc — `reqwest` with `rustls-tls` is statically compiled in.
 
 ## Example output
 
