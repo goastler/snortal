@@ -109,7 +109,7 @@ cargo install snortal
 
 **Binary download**
 
-Pre-built binaries for Linux (x86\_64, aarch64, armv7, i686, musl, MIPS, RISC-V) and macOS are on the [releases page](https://github.com/goastler/captive-portal-finder/releases).
+Pre-built binaries for Linux (x86\_64, aarch64, armv7, i686, musl, MIPS, RISC-V) and macOS are on the [releases page](https://github.com/goastler/snortal/releases).
 
 ## Building from source
 

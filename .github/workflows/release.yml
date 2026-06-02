@@ -212,7 +212,7 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           VERSION="${TAG#v}"
-          URL="https://github.com/goastler/captive-portal-finder/archive/refs/tags/${TAG}.tar.gz"
+          URL="https://github.com/goastler/snortal/archive/refs/tags/${TAG}.tar.gz"
           SHA256=$(curl -sL "$URL" | sha256sum | cut -d' ' -f1)
           cat > artifacts/PKGBUILD << EOF
           # Maintainer: George Oastler <goastler4 at gmail dot com>
@@ -222,31 +222,31 @@ jobs:
           pkgrel=1
           pkgdesc='Detect captive portal URLs on a Linux network'
           arch=('x86_64' 'aarch64' 'armv7h' 'i686')
-          url='https://github.com/goastler/captive-portal-finder'
+          url='https://github.com/goastler/snortal'
           license=('AGPL-3.0-or-later')
           makedepends=('cargo')
-          source=("\$pkgname-\$pkgver.tar.gz::https://github.com/goastler/captive-portal-finder/archive/refs/tags/v\${pkgver}.tar.gz")
+          source=("\$pkgname-\$pkgver.tar.gz::https://github.com/goastler/snortal/archive/refs/tags/v\${pkgver}.tar.gz")
           sha256sums=('${SHA256}')
 
           prepare() {
-              cd "captive-portal-finder-\$pkgver"
+              cd "\$pkgname-\$pkgver"
               cargo fetch --locked --target "\$CARCH-unknown-linux-gnu"
           }
 
           build() {
-              cd "captive-portal-finder-\$pkgver"
+              cd "\$pkgname-\$pkgver"
               export RUSTUP_TOOLCHAIN=stable
               export CARGO_TARGET_DIR=target
               cargo build --frozen --release
           }
 
           check() {
-              cd "captive-portal-finder-\$pkgver"
+              cd "\$pkgname-\$pkgver"
               cargo test --frozen
           }
 
           package() {
-              cd "captive-portal-finder-\$pkgver"
+              cd "\$pkgname-\$pkgver"
               install -Dm0755 -t "\$pkgdir/usr/bin/" "target/release/\$pkgname"
           }
           EOF
@@ -255,14 +255,14 @@ jobs:
           	pkgdesc = Detect captive portal URLs on a Linux network
           	pkgver = ${VERSION}
           	pkgrel = 1
-          	url = https://github.com/goastler/captive-portal-finder
+          	url = https://github.com/goastler/snortal
           	arch = x86_64
           	arch = aarch64
           	arch = armv7h
           	arch = i686
           	license = AGPL-3.0-or-later
           	makedepends = cargo
-          	source = snortal-${VERSION}.tar.gz::https://github.com/goastler/captive-portal-finder/archive/refs/tags/v${VERSION}.tar.gz
+          	source = snortal-${VERSION}.tar.gz::https://github.com/goastler/snortal/archive/refs/tags/v${VERSION}.tar.gz
           	sha256sums = ${SHA256}
 
           pkgname = snortal
@@ -279,8 +279,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
       - name: Set up AUR SSH
         env:
           AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
@@ -296,32 +294,69 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           VERSION="${TAG#v}"
-          URL="https://github.com/goastler/captive-portal-finder/archive/refs/tags/${TAG}.tar.gz"
+          URL="https://github.com/goastler/snortal/archive/refs/tags/${TAG}.tar.gz"
           SHA256=$(curl -sL "$URL" | sha256sum | cut -d' ' -f1)
 
           export GIT_SSH_COMMAND="ssh -i ~/.ssh/aur -o StrictHostKeyChecking=yes"
-          git clone ssh://aur@aur.archlinux.org/snortal.git aur-repo
+          git clone ssh://aur@aur.archlinux.org/snortal.git aur-repo || {
+            git init aur-repo
+            git -C aur-repo remote add origin ssh://aur@aur.archlinux.org/snortal.git
+          }
 
-          sed "s/^pkgver=.*/pkgver=${VERSION}/; s/sha256sums=('SKIP')/sha256sums=('${SHA256}')/" \
-            aur/PKGBUILD > aur-repo/PKGBUILD
+          cat > aur-repo/PKGBUILD << EOF
+          # Maintainer: George Oastler <goastler4 at gmail dot com>
+          # SPDX-License-Identifier: 0BSD
+          pkgname=snortal
+          pkgver=${VERSION}
+          pkgrel=1
+          pkgdesc='Detect captive portal URLs on a Linux network'
+          arch=('x86_64' 'aarch64' 'armv7h' 'i686')
+          url='https://github.com/goastler/snortal'
+          license=('AGPL-3.0-or-later')
+          makedepends=('cargo')
+          source=("\$pkgname-\$pkgver.tar.gz::https://github.com/goastler/snortal/archive/refs/tags/v\${pkgver}.tar.gz")
+          sha256sums=('${SHA256}')
 
-          cat > aur-repo/.SRCINFO << SRCINFOEOF
+          prepare() {
+              cd "\$pkgname-\$pkgver"
+              cargo fetch --locked --target "\$CARCH-unknown-linux-gnu"
+          }
+
+          build() {
+              cd "\$pkgname-\$pkgver"
+              export RUSTUP_TOOLCHAIN=stable
+              export CARGO_TARGET_DIR=target
+              cargo build --frozen --release
+          }
+
+          check() {
+              cd "\$pkgname-\$pkgver"
+              cargo test --frozen
+          }
+
+          package() {
+              cd "\$pkgname-\$pkgver"
+              install -Dm0755 -t "\$pkgdir/usr/bin/" "target/release/\$pkgname"
+          }
+          EOF
+
+          cat > aur-repo/.SRCINFO << EOF
           pkgbase = snortal
           	pkgdesc = Detect captive portal URLs on a Linux network
           	pkgver = ${VERSION}
           	pkgrel = 1
-          	url = https://github.com/goastler/captive-portal-finder
+          	url = https://github.com/goastler/snortal
           	arch = x86_64
           	arch = aarch64
           	arch = armv7h
           	arch = i686
           	license = AGPL-3.0-or-later
           	makedepends = cargo
-          	source = snortal-${VERSION}.tar.gz::https://github.com/goastler/captive-portal-finder/archive/refs/tags/v${VERSION}.tar.gz
+          	source = snortal-${VERSION}.tar.gz::https://github.com/goastler/snortal/archive/refs/tags/v${VERSION}.tar.gz
           	sha256sums = ${SHA256}
 
           pkgname = snortal
-          SRCINFOEOF
+          EOF
 
           cd aur-repo
           git config user.name "George Oastler"
@@ -329,5 +364,5 @@ jobs:
           git add PKGBUILD .SRCINFO
           if ! git diff --cached --quiet; then
             git commit -m "Update to ${TAG}"
-            git push
+            git push origin HEAD:master
           fi

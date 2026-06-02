@@ -1,6 +1,6 @@
 [package]
 name = "snortal"
-version = "1.0.2"
+version = "1.0.3"
 edition = "2021"
 description = "Detect captive portal URLs on a Linux network"
 authors = ["George Oastler <goastler4@gmail.com>"]
