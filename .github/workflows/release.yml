@@ -220,58 +220,58 @@ jobs:
           URL="https://github.com/goastler/snortal/archive/refs/tags/${TAG}.tar.gz"
           SHA256=$(curl --max-time 120 -sL "$URL" | sha256sum | cut -d' ' -f1)
           cat > artifacts/PKGBUILD-src << EOF
-# Maintainer: George Oastler <goastler4 at gmail dot com>
-# SPDX-License-Identifier: 0BSD
-pkgname=snortal
-pkgver=${VERSION}
-pkgrel=1
-pkgdesc='Detect captive portal URLs on a Linux network'
-arch=('x86_64' 'aarch64' 'armv7h' 'i686')
-url='https://github.com/goastler/snortal'
-license=('AGPL-3.0-or-later')
-makedepends=('cargo')
-source=("\$pkgname-\$pkgver.tar.gz::https://github.com/goastler/snortal/archive/refs/tags/v\${pkgver}.tar.gz")
-sha256sums=('${SHA256}')
+          # Maintainer: George Oastler <goastler4 at gmail dot com>
+          # SPDX-License-Identifier: 0BSD
+          pkgname=snortal
+          pkgver=${VERSION}
+          pkgrel=1
+          pkgdesc='Detect captive portal URLs on a Linux network'
+          arch=('x86_64' 'aarch64' 'armv7h' 'i686')
+          url='https://github.com/goastler/snortal'
+          license=('AGPL-3.0-or-later')
+          makedepends=('cargo')
+          source=("\$pkgname-\$pkgver.tar.gz::https://github.com/goastler/snortal/archive/refs/tags/v\${pkgver}.tar.gz")
+          sha256sums=('${SHA256}')
 
-prepare() {
-    cd "\$pkgname-\$pkgver"
-    cargo fetch --locked --target "\$CARCH-unknown-linux-gnu"
-}
+          prepare() {
+              cd "\$pkgname-\$pkgver"
+              cargo fetch --locked --target "\$CARCH-unknown-linux-gnu"
+          }
 
-build() {
-    cd "\$pkgname-\$pkgver"
-    export RUSTUP_TOOLCHAIN=stable
-    export CARGO_TARGET_DIR=target
-    cargo build --frozen --release
-}
+          build() {
+              cd "\$pkgname-\$pkgver"
+              export RUSTUP_TOOLCHAIN=stable
+              export CARGO_TARGET_DIR=target
+              cargo build --frozen --release
+          }
 
-check() {
-    cd "\$pkgname-\$pkgver"
-    cargo test --frozen
-}
+          check() {
+              cd "\$pkgname-\$pkgver"
+              cargo test --frozen
+          }
 
-package() {
-    cd "\$pkgname-\$pkgver"
-    install -Dm0755 -t "\$pkgdir/usr/bin/" "target/release/\$pkgname"
-}
-EOF
+          package() {
+              cd "\$pkgname-\$pkgver"
+              install -Dm0755 -t "\$pkgdir/usr/bin/" "target/release/\$pkgname"
+          }
+          EOF
           cat > artifacts/.SRCINFO-src << EOF
-pkgbase = snortal
-	pkgdesc = Detect captive portal URLs on a Linux network
-	pkgver = ${VERSION}
-	pkgrel = 1
-	url = https://github.com/goastler/snortal
-	arch = x86_64
-	arch = aarch64
-	arch = armv7h
-	arch = i686
-	license = AGPL-3.0-or-later
-	makedepends = cargo
-	source = snortal-${VERSION}.tar.gz::https://github.com/goastler/snortal/archive/refs/tags/v${VERSION}.tar.gz
-	sha256sums = ${SHA256}
+          pkgbase = snortal
+          	pkgdesc = Detect captive portal URLs on a Linux network
+          	pkgver = ${VERSION}
+          	pkgrel = 1
+          	url = https://github.com/goastler/snortal
+          	arch = x86_64
+          	arch = aarch64
+          	arch = armv7h
+          	arch = i686
+          	license = AGPL-3.0-or-later
+          	makedepends = cargo
+          	source = snortal-${VERSION}.tar.gz::https://github.com/goastler/snortal/archive/refs/tags/v${VERSION}.tar.gz
+          	sha256sums = ${SHA256}
 
-pkgname = snortal
-EOF
+          pkgname = snortal
+          EOF
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
@@ -298,22 +298,22 @@ EOF
           # Known SHA-1: D0B1 608D 9B75 24C9 7058 E91B 9C61 FDD9 CD01 2767
           ssh-keyscan aur.archlinux.org > /tmp/aur_hostkey 2>/dev/null
           python3 - << 'PYEOF'
-import subprocess, base64, binascii, sys
-EXPECTED = "d0b1608d9b7524c97058e91b9c61fdd9cd012767"
-out = subprocess.check_output(["ssh-keygen", "-E", "sha1", "-lf", "/tmp/aur_hostkey"]).decode()
-for line in out.splitlines():
-    parts = line.split()
-    if len(parts) >= 2 and "SHA1:" in parts[1]:
-        b64 = parts[1].split("SHA1:")[1]
-        padded = b64 + "=" * (-len(b64) % 4)
-        try:
-            if binascii.hexlify(base64.b64decode(padded)).decode() == EXPECTED:
-                sys.exit(0)
-        except Exception:
-            pass
-print("ERROR: AUR host key fingerprint mismatch", file=sys.stderr)
-sys.exit(1)
-PYEOF
+          import subprocess, base64, binascii, sys
+          EXPECTED = "d0b1608d9b7524c97058e91b9c61fdd9cd012767"
+          out = subprocess.check_output(["ssh-keygen", "-E", "sha1", "-lf", "/tmp/aur_hostkey"]).decode()
+          for line in out.splitlines():
+              parts = line.split()
+              if len(parts) >= 2 and "SHA1:" in parts[1]:
+                  b64 = parts[1].split("SHA1:")[1]
+                  padded = b64 + "=" * (-len(b64) % 4)
+                  try:
+                      if binascii.hexlify(base64.b64decode(padded)).decode() == EXPECTED:
+                          sys.exit(0)
+                  except Exception:
+                      pass
+          print("ERROR: AUR host key fingerprint mismatch", file=sys.stderr)
+          sys.exit(1)
+          PYEOF
           ssh-keygen -H -f /tmp/aur_hostkey
           cat /tmp/aur_hostkey >> ~/.ssh/known_hosts
 
@@ -340,51 +340,51 @@ PYEOF
           }
 
           cat > aur-repo/PKGBUILD << EOF
-# Maintainer: George Oastler <goastler4 at gmail dot com>
-# SPDX-License-Identifier: 0BSD
-pkgname=snortal
-pkgver=${VERSION}
-pkgrel=1
-pkgdesc='Detect captive portal URLs on a Linux network'
-arch=('x86_64' 'aarch64' 'armv7h' 'i686')
-url='https://github.com/goastler/snortal'
-license=('AGPL-3.0-or-later')
-source_x86_64=("snortal-x86_64-\${pkgver}::${BASE}/snortal-linux-x86_64")
-source_aarch64=("snortal-aarch64-\${pkgver}::${BASE}/snortal-linux-aarch64")
-source_armv7h=("snortal-armv7h-\${pkgver}::${BASE}/snortal-linux-armv7")
-source_i686=("snortal-i686-\${pkgver}::${BASE}/snortal-linux-x86")
-sha256sums_x86_64=('${SHA_X86_64}')
-sha256sums_aarch64=('${SHA_AARCH64}')
-sha256sums_armv7h=('${SHA_ARMV7H}')
-sha256sums_i686=('${SHA_I686}')
+          # Maintainer: George Oastler <goastler4 at gmail dot com>
+          # SPDX-License-Identifier: 0BSD
+          pkgname=snortal
+          pkgver=${VERSION}
+          pkgrel=1
+          pkgdesc='Detect captive portal URLs on a Linux network'
+          arch=('x86_64' 'aarch64' 'armv7h' 'i686')
+          url='https://github.com/goastler/snortal'
+          license=('AGPL-3.0-or-later')
+          source_x86_64=("snortal-x86_64-\${pkgver}::${BASE}/snortal-linux-x86_64")
+          source_aarch64=("snortal-aarch64-\${pkgver}::${BASE}/snortal-linux-aarch64")
+          source_armv7h=("snortal-armv7h-\${pkgver}::${BASE}/snortal-linux-armv7")
+          source_i686=("snortal-i686-\${pkgver}::${BASE}/snortal-linux-x86")
+          sha256sums_x86_64=('${SHA_X86_64}')
+          sha256sums_aarch64=('${SHA_AARCH64}')
+          sha256sums_armv7h=('${SHA_ARMV7H}')
+          sha256sums_i686=('${SHA_I686}')
 
-package() {
-    install -Dm0755 "snortal-\${CARCH}-\${pkgver}" "\$pkgdir/usr/bin/snortal"
-}
-EOF
+          package() {
+              install -Dm0755 "snortal-\${CARCH}-\${pkgver}" "\$pkgdir/usr/bin/snortal"
+          }
+          EOF
 
           cat > aur-repo/.SRCINFO << EOF
-pkgbase = snortal
-	pkgdesc = Detect captive portal URLs on a Linux network
-	pkgver = ${VERSION}
-	pkgrel = 1
-	url = https://github.com/goastler/snortal
-	arch = x86_64
-	arch = aarch64
-	arch = armv7h
-	arch = i686
-	license = AGPL-3.0-or-later
-	source_x86_64 = snortal-x86_64-${VERSION}::${BASE}/snortal-linux-x86_64
-	sha256sums_x86_64 = ${SHA_X86_64}
-	source_aarch64 = snortal-aarch64-${VERSION}::${BASE}/snortal-linux-aarch64
-	sha256sums_aarch64 = ${SHA_AARCH64}
-	source_armv7h = snortal-armv7h-${VERSION}::${BASE}/snortal-linux-armv7
-	sha256sums_armv7h = ${SHA_ARMV7H}
-	source_i686 = snortal-i686-${VERSION}::${BASE}/snortal-linux-x86
-	sha256sums_i686 = ${SHA_I686}
+          pkgbase = snortal
+          	pkgdesc = Detect captive portal URLs on a Linux network
+          	pkgver = ${VERSION}
+          	pkgrel = 1
+          	url = https://github.com/goastler/snortal
+          	arch = x86_64
+          	arch = aarch64
+          	arch = armv7h
+          	arch = i686
+          	license = AGPL-3.0-or-later
+          	source_x86_64 = snortal-x86_64-${VERSION}::${BASE}/snortal-linux-x86_64
+          	sha256sums_x86_64 = ${SHA_X86_64}
+          	source_aarch64 = snortal-aarch64-${VERSION}::${BASE}/snortal-linux-aarch64
+          	sha256sums_aarch64 = ${SHA_AARCH64}
+          	source_armv7h = snortal-armv7h-${VERSION}::${BASE}/snortal-linux-armv7
+          	sha256sums_armv7h = ${SHA_ARMV7H}
+          	source_i686 = snortal-i686-${VERSION}::${BASE}/snortal-linux-x86
+          	sha256sums_i686 = ${SHA_I686}
 
-pkgname = snortal
-EOF
+          pkgname = snortal
+          EOF
 
           cd aur-repo
           git config user.name "George Oastler"
