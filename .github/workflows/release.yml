@@ -317,18 +317,9 @@ PYEOF
           ssh-keygen -H -f /tmp/aur_hostkey
           cat /tmp/aur_hostkey >> ~/.ssh/known_hosts
 
-      - name: Import GPG signing key
-        env:
-          AUR_GPG_KEY: ${{ secrets.AUR_GPG_KEY }}
-          AUR_GPG_FINGERPRINT: ${{ vars.AUR_GPG_FINGERPRINT }}
-        run: |
-          printf '%s' "$AUR_GPG_KEY" | gpg --batch --import
-          printf '%s:6:\n' "$AUR_GPG_FINGERPRINT" | gpg --import-ownertrust
-
       - name: Push to AUR
         env:
           TAG: ${{ github.ref_name }}
-          AUR_GPG_FINGERPRINT: ${{ vars.AUR_GPG_FINGERPRINT }}
         run: |
           if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "ERROR: Invalid tag format: '$TAG'" >&2
@@ -402,8 +393,6 @@ EOF
           cd aur-repo
           git config user.name "George Oastler"
           git config user.email "goastler4@gmail.com"
-          git config user.signingkey "$AUR_GPG_FINGERPRINT"
-          git config commit.gpgsign true
           git add PKGBUILD .SRCINFO
           if ! git diff --cached --quiet; then
             git commit -m "Update to ${TAG}"
