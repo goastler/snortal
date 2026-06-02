@@ -1,6 +1,6 @@
 [package]
 name = "snortal"
-version = "1.0.4"
+version = "1.0.5"
 edition = "2021"
 description = "Detect captive portal URLs on a Linux network"
 authors = ["George Oastler <goastler4@gmail.com>"]
@@ -12,6 +12,7 @@ path = "src/main.rs"
 
 [package.metadata.deb]
 section = "net"
+depends = "libc6"
 
 [dependencies]
 tokio   = { version = "1",    features = ["full"] }
