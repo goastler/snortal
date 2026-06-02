@@ -39,7 +39,9 @@ async fn detect_inner(
                     }
                 }
                 if let (Some(ssid), Some(state)) = (ssid, state) {
-                    eprintln!("[verbose] wpa_supplicant: iface={iface} ssid={ssid:?} state={state}");
+                    let ssid_safe: String =
+                        ssid.chars().map(|c| if c.is_control() { '?' } else { c }).collect();
+                    eprintln!("[verbose] wpa_supplicant: iface={iface} ssid={ssid_safe:?} state={state}");
                 }
             }
         }

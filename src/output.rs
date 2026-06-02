@@ -51,24 +51,20 @@ pub fn print_results(urls: Vec<PortalUrl>, notes: Vec<StatusNote>, json: bool, v
 }
 
 fn print_json(urls: &[PortalUrl], notes: &[StatusNote]) {
-    print!("[");
-    for (i, p) in urls.iter().enumerate() {
-        if i > 0 {
-            print!(",");
-        }
-        let source = p.source.to_string().replace('"', "\\\"");
-        let url = p.url.replace('"', "\\\"");
-        print!(
-            "{{\"url\":\"{url}\",\"source\":\"{source}\",\"confidence\":{}}}",
-            p.confidence
-        );
+    let mut items: Vec<serde_json::Value> = urls
+        .iter()
+        .map(|p| {
+            serde_json::json!({
+                "url": p.url,
+                "source": p.source.to_string(),
+                "confidence": p.confidence,
+            })
+        })
+        .collect();
+
+    for n in notes {
+        items.push(serde_json::json!({ "status": n.message }));
     }
-    for (i, n) in notes.iter().enumerate() {
-        if !urls.is_empty() || i > 0 {
-            print!(",");
-        }
-        let msg = n.message.replace('"', "\\\"");
-        print!("{{\"status\":\"{msg}\"}}");
-    }
-    println!("]");
+
+    println!("{}", serde_json::to_string(&items).unwrap_or_else(|_| "[]".to_owned()));
 }
