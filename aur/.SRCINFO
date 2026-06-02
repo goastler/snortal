@@ -1,0 +1,15 @@
+pkgbase = portalgun
+	pkgdesc = Detect captive portal URLs on a Linux network
+	pkgver = 1.0.0
+	pkgrel = 1
+	url = https://github.com/goastler/captive-portal-finder
+	arch = x86_64
+	arch = aarch64
+	arch = armv7h
+	arch = i686
+	license = AGPL-3.0-or-later
+	makedepends = cargo
+	source = portalgun-1.0.0.tar.gz::https://github.com/goastler/captive-portal-finder/archive/refs/tags/v1.0.0.tar.gz
+	sha256sums = SKIP
+
+pkgname = portalgun

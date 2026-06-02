@@ -207,7 +207,7 @@ jobs:
           path: artifacts
           merge-multiple: true
 
-      - name: Generate PKGBUILD
+      - name: Generate PKGBUILD and .SRCINFO
         env:
           TAG: ${{ github.ref_name }}
         run: |
@@ -215,37 +215,57 @@ jobs:
           URL="https://github.com/goastler/captive-portal-finder/archive/refs/tags/${TAG}.tar.gz"
           SHA256=$(curl -sL "$URL" | sha256sum | cut -d' ' -f1)
           cat > artifacts/PKGBUILD << EOF
-          # Maintainer: George Oastler <goastler4@gmail.com>
+          # Maintainer: George Oastler <goastler4 at gmail dot com>
+          # SPDX-License-Identifier: 0BSD
           pkgname=portalgun
           pkgver=${VERSION}
           pkgrel=1
           pkgdesc='Detect captive portal URLs on a Linux network'
           arch=('x86_64' 'aarch64' 'armv7h' 'i686')
           url='https://github.com/goastler/captive-portal-finder'
-          license=('MIT')
+          license=('AGPL-3.0-or-later')
           makedepends=('cargo')
-          source=("\$pkgname-\$pkgver.tar.gz::https://github.com/goastler/captive-portal-finder/archive/refs/tags/v${VERSION}.tar.gz")
+          source=("\$pkgname-\$pkgver.tar.gz::https://github.com/goastler/captive-portal-finder/archive/refs/tags/v\${pkgver}.tar.gz")
           sha256sums=('${SHA256}')
 
           prepare() {
-              cd "\$pkgname-\$pkgver"
+              cd "captive-portal-finder-\$pkgver"
               cargo fetch --locked --target "\$CARCH-unknown-linux-gnu"
           }
 
           build() {
-              cd "\$pkgname-\$pkgver"
+              cd "captive-portal-finder-\$pkgver"
+              export RUSTUP_TOOLCHAIN=stable
+              export CARGO_TARGET_DIR=target
               cargo build --frozen --release
           }
 
           check() {
-              cd "\$pkgname-\$pkgver"
+              cd "captive-portal-finder-\$pkgver"
               cargo test --frozen
           }
 
           package() {
-              cd "\$pkgname-\$pkgver"
-              install -Dm0755 -t "\$pkgdir/usr/bin/" "target/release/portalgun"
+              cd "captive-portal-finder-\$pkgver"
+              install -Dm0755 -t "\$pkgdir/usr/bin/" "target/release/\$pkgname"
           }
+          EOF
+          cat > artifacts/.SRCINFO << EOF
+          pkgbase = portalgun
+          	pkgdesc = Detect captive portal URLs on a Linux network
+          	pkgver = ${VERSION}
+          	pkgrel = 1
+          	url = https://github.com/goastler/captive-portal-finder
+          	arch = x86_64
+          	arch = aarch64
+          	arch = armv7h
+          	arch = i686
+          	license = AGPL-3.0-or-later
+          	makedepends = cargo
+          	source = portalgun-${VERSION}.tar.gz::https://github.com/goastler/captive-portal-finder/archive/refs/tags/v${VERSION}.tar.gz
+          	sha256sums = ${SHA256}
+
+          pkgname = portalgun
           EOF
 
       - name: Create GitHub Release
@@ -253,3 +273,61 @@ jobs:
         with:
           files: artifacts/*
           generate_release_notes: true
+
+  aur-publish:
+    name: Publish to AUR
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up AUR SSH
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "$AUR_SSH_KEY" > ~/.ssh/aur
+          chmod 600 ~/.ssh/aur
+          ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
+
+      - name: Push to AUR
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG#v}"
+          URL="https://github.com/goastler/captive-portal-finder/archive/refs/tags/${TAG}.tar.gz"
+          SHA256=$(curl -sL "$URL" | sha256sum | cut -d' ' -f1)
+
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/aur -o StrictHostKeyChecking=yes"
+          git clone ssh://aur@aur.archlinux.org/portalgun.git aur-repo
+
+          sed "s/^pkgver=.*/pkgver=${VERSION}/; s/sha256sums=('SKIP')/sha256sums=('${SHA256}')/" \
+            aur/PKGBUILD > aur-repo/PKGBUILD
+
+          cat > aur-repo/.SRCINFO << SRCINFOEOF
+          pkgbase = portalgun
+          	pkgdesc = Detect captive portal URLs on a Linux network
+          	pkgver = ${VERSION}
+          	pkgrel = 1
+          	url = https://github.com/goastler/captive-portal-finder
+          	arch = x86_64
+          	arch = aarch64
+          	arch = armv7h
+          	arch = i686
+          	license = AGPL-3.0-or-later
+          	makedepends = cargo
+          	source = portalgun-${VERSION}.tar.gz::https://github.com/goastler/captive-portal-finder/archive/refs/tags/v${VERSION}.tar.gz
+          	sha256sums = ${SHA256}
+
+          pkgname = portalgun
+          SRCINFOEOF
+
+          cd aur-repo
+          git config user.name "George Oastler"
+          git config user.email "goastler4@gmail.com"
+          git add PKGBUILD .SRCINFO
+          if ! git diff --cached --quiet; then
+            git commit -m "Update to ${TAG}"
+            git push
+          fi
