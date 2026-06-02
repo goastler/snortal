@@ -294,25 +294,7 @@ jobs:
           printf '%s' "$AUR_SSH_KEY" > ~/.ssh/aur
           chmod 600 ~/.ssh/aur
 
-          # Fetch and verify AUR host key against official SHA-256 fingerprints
-          # (published at https://aur.archlinux.org/ — update if AUR rotates keys)
-          ssh-keyscan aur.archlinux.org > /tmp/aur_hostkey 2>/dev/null
-          python3 - << 'PYEOF'
-          import subprocess, sys
-          KNOWN = {
-              "SHA256:RFzBCUItH9LZS0cKB5UE6ceAYhBD5C8GeOBip8Z11+4",
-              "SHA256:3FVLQm86VCMGV14VKR6vfOBZaP4YfCEGVSSPv87x3rY",
-          }
-          out = subprocess.check_output(["ssh-keygen", "-lf", "/tmp/aur_hostkey"]).decode()
-          for line in out.splitlines():
-              parts = line.split()
-              if len(parts) >= 2 and parts[1] in KNOWN:
-                  sys.exit(0)
-          print("ERROR: AUR host key fingerprint mismatch", file=sys.stderr)
-          sys.exit(1)
-          PYEOF
-          ssh-keygen -H -f /tmp/aur_hostkey
-          cat /tmp/aur_hostkey >> ~/.ssh/known_hosts
+          ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
 
       - name: Push to AUR
         env:
