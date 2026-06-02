@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: 0BSD
 
 pkgname=portalgun
-pkgver=1.0.0
+pkgver=1.0.1
 pkgrel=1
 pkgdesc='Detect captive portal URLs on a Linux network'
 arch=('x86_64' 'aarch64' 'armv7h' 'i686')
