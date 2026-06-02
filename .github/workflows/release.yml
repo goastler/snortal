@@ -219,7 +219,7 @@ jobs:
           VERSION="${TAG#v}"
           URL="https://github.com/goastler/snortal/archive/refs/tags/${TAG}.tar.gz"
           SHA256=$(curl --max-time 120 -sL "$URL" | sha256sum | cut -d' ' -f1)
-          cat > artifacts/PKGBUILD << EOF
+          cat > artifacts/PKGBUILD-src << EOF
 # Maintainer: George Oastler <goastler4 at gmail dot com>
 # SPDX-License-Identifier: 0BSD
 pkgname=snortal
@@ -255,7 +255,7 @@ package() {
     install -Dm0755 -t "\$pkgdir/usr/bin/" "target/release/\$pkgname"
 }
 EOF
-          cat > artifacts/.SRCINFO << EOF
+          cat > artifacts/.SRCINFO-src << EOF
 pkgbase = snortal
 	pkgdesc = Detect captive portal URLs on a Linux network
 	pkgver = ${VERSION}
