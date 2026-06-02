@@ -72,14 +72,6 @@ jobs:
             artifact_suffix: linux-riscv64
             runner: ubuntu-latest
             use_cross: true
-          - target: mipsel-unknown-linux-gnu
-            artifact_suffix: linux-mipsel
-            runner: ubuntu-latest
-            use_cross: true
-          - target: mips-unknown-linux-gnu
-            artifact_suffix: linux-mips
-            runner: ubuntu-latest
-            use_cross: true
           - target: x86_64-apple-darwin
             artifact_suffix: macos-x86_64
             runner: macos-latest
